@@ -250,6 +250,16 @@ public sealed class WindowsDesktopWindowControllerTests
             Handle = CreateWindowEx(extendedStyle, "Chrome_WidgetWin_1", hasCaption ? "Codex Lover synthetic selection test" : "",
                 0x00CF0000, 100, 100, width, height, owner, IntPtr.Zero, GetModuleHandle(null), IntPtr.Zero);
             if (Handle == IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error());
+            // Hosted Windows runners can have a 1024x768 desktop. CreateWindowEx
+            // clamps oversized windows, which changes the area ordering that these
+            // fixtures are meant to exercise. Apply one scale to every fixture so
+            // the relative geometry remains intact on smaller displays.
+            var work = WorkArea(Handle);
+            var scale = Math.Min(1d, Math.Min((work.Right - work.Left) / 2000d,
+                (work.Bottom - work.Top) / 1300d));
+            if (!SetWindowPos(Handle, IntPtr.Zero, work.Left + 10, work.Top + 10,
+                Math.Max(1, (int)(width * scale)), Math.Max(1, (int)(height * scale)), 0x0014))
+                throw new Win32Exception(Marshal.GetLastWin32Error());
         }
         public void Dispose() => DestroyWindow(Handle);
     }
