@@ -1,0 +1,406 @@
+<Window x:Class="CodexAccountMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:controls="clr-namespace:CodexAccountMonitor.Controls"
+        xmlns:vm="clr-namespace:CodexAccountMonitor.ViewModels"
+        Title="Codex Account Monitor"
+        Width="588" MinWidth="530" MaxWidth="1120" MinHeight="400"
+        SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        Foreground="{DynamicResource PrimaryTextBrush}"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0"
+                            ResizeBorderThickness="6"
+                            CornerRadius="16"
+                            GlassFrameThickness="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- The shell opacity is user-adjustable; text remains fully opaque. -->
+        <LinearGradientBrush x:Key="WidgetShellBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF10171F" Offset="0" />
+            <GradientStop Color="#FF080D13" Offset="1" />
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="WidgetCardBrush" Color="#2E121A22" />
+        <SolidColorBrush x:Key="WidgetCardHoverBrush" Color="#591A252E" />
+
+        <Style x:Key="MetricProgress" TargetType="ProgressBar">
+            <Setter Property="Height" Value="6" />
+            <Setter Property="Maximum" Value="100" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="3" ClipToBounds="True">
+                            <Grid x:Name="PART_Track">
+                                <Border x:Name="PART_Indicator"
+                                        HorizontalAlignment="Left"
+                                        Background="{TemplateBinding Foreground}"
+                                        CornerRadius="3" />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="AccountCardTemplate" DataType="{x:Type vm:AccountCardViewModel}">
+            <Border x:Name="Card"
+                    Background="{DynamicResource WidgetCardBrush}"
+                    BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="11"
+                    Padding="{Binding CardPadding}">
+                <Grid>
+                    <Grid x:Name="ConfiguredContent" Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{Binding MetricRowHeight}" />
+                            <RowDefinition Height="{Binding MetricRowHeight}" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding AccountNumber}" FontSize="13" Foreground="{DynamicResource MutedTextBrush}" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Alias}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Alias}" />
+                                <TextBlock Text="{Binding MaskedEmail}" FontSize="{Binding DetailFontSize}" Foreground="{DynamicResource MutedTextBrush}"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           Visibility="{Binding HasMaskedEmail, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                            <Button Grid.Column="2" Margin="6,0,5,0"
+                                    Style="{StaticResource IconButton}" Content="&#xE712;" Padding="5,2" MinWidth="25"
+                                    ToolTip="Manage account" AutomationProperties.Name="{Binding Alias, StringFormat=Manage account {0}}"
+                                    Click="AccountMenuButton_OnClick">
+                                <Button.ContextMenu>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Refresh account" Command="{Binding RefreshCommand}" />
+                                        <MenuItem Header="Sign in again" Command="{Binding ReauthenticateCommand}" />
+                                        <MenuItem Header="Rename / reorder in Settings" Command="{Binding ManageCommand}" />
+                                        <Separator />
+                                        <MenuItem Header="Remove account" Command="{Binding RemoveCommand}" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+                            <Grid Grid.Column="3">
+                                <Border Background="#263A4D44" BorderBrush="#657DDBB8" BorderThickness="1" CornerRadius="7" Padding="8,3"
+                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibility}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="7" Height="7" Fill="{DynamicResource SuccessBrush}" Margin="0,0,6,0" />
+                                        <TextBlock Text="Selected" FontSize="11" Foreground="{DynamicResource MintBrush}"
+                                                   ToolTip="This account matches the saved Codex desktop sign-in. Running tasks may still use an earlier sign-in until Codex is restarted." />
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="#2EE5BE55" BorderBrush="#7FE5BE55" BorderThickness="1" CornerRadius="7" Padding="8,3"
+                                        Visibility="{Binding IsPending, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Queued" FontSize="{Binding DetailFontSize}" Foreground="{DynamicResource WarningBrush}" />
+                                </Border>
+                                <Border Background="#2E68A8EF" BorderBrush="#7F68A8EF" BorderThickness="1" CornerRadius="7" Padding="8,3"
+                                        Visibility="{Binding IsSwitching, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Starting…" FontSize="{Binding DetailFontSize}" Foreground="{DynamicResource BlueBrush}" />
+                                </Border>
+                                <Button Content="Switch" Command="{Binding SwitchCommand}" Padding="8,3"
+                                        AutomationProperties.Name="{Binding Alias, StringFormat=Switch Codex to {0}}"
+                                        ToolTip="Switch this account and reopen Codex. Restarting stops running tasks; let them finish and save edits first.">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource GlassButton}">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Setter Property="FontSize" Value="11" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                <DataTrigger Binding="{Binding IsPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSwitching}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                <DataTrigger Binding="{Binding NeedsReauthentication}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="Sign in" Command="{Binding ReauthenticateCommand}" Style="{StaticResource GlassButton}"
+                                        Foreground="{DynamicResource DangerBrush}" Padding="8,2" FontSize="{Binding DetailFontSize}"
+                                        Visibility="{Binding NeedsReauthentication, Converter={StaticResource BoolToVisibility}}" />
+                            </Grid>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="144" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding FiveHourLabel}" FontSize="{Binding MetricFontSize}" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" />
+                            <Border Grid.Column="1" BorderBrush="{DynamicResource MintBrush}" BorderThickness="1.25" CornerRadius="11" Padding="3,1"
+                                    ToolTip="Remaining quota. A dash means the service did not report this window."
+                                    AutomationProperties.HelpText="Remaining quota; a dash means not reported">
+                                <TextBlock Text="{Binding FiveHourDisplay}" HorizontalAlignment="Center" FontSize="{Binding DetailFontSize}" FontWeight="SemiBold" />
+                            </Border>
+                            <ProgressBar Grid.Column="3" Style="{StaticResource MetricProgress}" Value="{Binding FiveHourProgress, Mode=OneWay}"
+                                         AutomationProperties.Name="{Binding FiveHourLabel}" AutomationProperties.HelpText="{Binding FiveHourDisplay, StringFormat=Remaining quota {0}}"
+                                         Opacity="{Binding FiveHourProgressOpacity}"
+                                         Foreground="{DynamicResource MintBrush}" Background="{DynamicResource MintTrackBrush}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="5" FontFamily="Segoe Fluent Icons" Text="&#xE787;" FontSize="13" Foreground="{DynamicResource MintBrush}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="7" Text="{Binding FiveHourCountdown}" FontSize="{Binding DetailFontSize}"
+                                       Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" ToolTip="{Binding FiveHourResetTooltip}" />
+                        </Grid>
+
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="144" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding LongTermLabel}" FontSize="{Binding MetricFontSize}" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" />
+                            <Border Grid.Column="1" BorderBrush="{DynamicResource BlueBrush}" BorderThickness="1.25" CornerRadius="11" Padding="3,1"
+                                    ToolTip="Remaining quota. A dash means the service did not report this window."
+                                    AutomationProperties.HelpText="Remaining quota; a dash means not reported">
+                                <TextBlock Text="{Binding WeeklyDisplay}" HorizontalAlignment="Center" FontSize="{Binding DetailFontSize}" FontWeight="SemiBold" />
+                            </Border>
+                            <ProgressBar Grid.Column="3" Style="{StaticResource MetricProgress}" Value="{Binding WeeklyProgress, Mode=OneWay}"
+                                         AutomationProperties.Name="{Binding LongTermLabel}" AutomationProperties.HelpText="{Binding WeeklyDisplay, StringFormat=Remaining quota {0}}"
+                                         Opacity="{Binding WeeklyProgressOpacity}"
+                                         Foreground="{DynamicResource BlueBrush}" Background="{DynamicResource BlueTrackBrush}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="5" FontFamily="Segoe Fluent Icons" Text="&#xE787;" FontSize="13" Foreground="{DynamicResource MintBrush}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="7" Text="{Binding WeeklyCountdown}" FontSize="{Binding DetailFontSize}"
+                                       Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" ToolTip="{Binding WeeklyResetTooltip}" />
+                        </Grid>
+
+                        <Grid Grid.Row="3" Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE81E;" Foreground="{DynamicResource MintBrush}" FontSize="12" Margin="0,0,5,0" />
+                                <TextBlock Text="Reset bank " FontSize="{Binding DetailFontSize}" Foreground="{DynamicResource SecondaryTextBrush}" />
+                                <TextBlock Text="{Binding ResetBankDisplay}" FontSize="{Binding DetailFontSize}" FontWeight="SemiBold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                            <Style.Triggers><DataTrigger Binding="{Binding ResetBankDisplay}" Value="0"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></DataTrigger></Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="{Binding ResetActionLabel}" Command="{Binding UseResetCreditCommand}" Style="{StaticResource LinkButton}"
+                                    Margin="5,0,0,0" Visibility="{Binding CanUseResetCredit, Converter={StaticResource BoolToVisibility}}" />
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
+                                        ToolTip="{Binding RefreshStatusTooltip}">
+                                <Ellipse Width="6" Height="6" Margin="0,0,5,0" Fill="{Binding Authentication, Converter={StaticResource AuthenticationBrush}}" />
+                                <TextBlock Text="{Binding LastRefreshLabel}" FontSize="{Binding DetailFontSize}" Foreground="{DynamicResource MutedTextBrush}" ToolTip="{Binding LastRefreshTooltip}" />
+                            </StackPanel>
+                        </Grid>
+                        <Border Grid.Row="4" Margin="0,9,0,0" Padding="9,7" CornerRadius="6"
+                                Background="{DynamicResource StatusPanelBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1"
+                                Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" FontSize="{Binding DetailFontSize}" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource GlassButton}" Padding="7,3" FontSize="11" />
+                                    <Button Content="Settings" Command="{Binding ManageCommand}" Style="{StaticResource GlassButton}" Padding="7,3" FontSize="11" Margin="5,0,0,0"
+                                            Visibility="{Binding NeedsCodexSetup, Converter={StaticResource BoolToVisibility}}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid MinHeight="72" Visibility="{Binding IsConfigured, Converter={StaticResource InverseBoolToVisibility}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="36" Height="36" CornerRadius="18" Background="#243D4D58" BorderBrush="#4B6A7882" BorderThickness="1" VerticalAlignment="Center">
+                            <TextBlock Text="＋" FontSize="20" Foreground="{DynamicResource MintBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-2,0,0" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="11,0" VerticalAlignment="Center">
+                            <TextBlock Text="Connect a Codex account" FontSize="14" FontWeight="SemiBold" />
+                            <TextBlock Text="Membership is ready. Choose Add account to connect your Codex account separately and see its usage and resets." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Margin="0,2,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Button Grid.Column="2" Content="Add account" Command="{Binding AddCommand}" Style="{StaticResource GlassButton}" Padding="11,4" VerticalAlignment="Center" />
+                    </Grid>
+                </Grid>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource ActiveBorderBrush}" />
+                    <Setter TargetName="Card" Property="BorderThickness" Value="1.4" />
+                    <Setter TargetName="Card" Property="Effect">
+                        <Setter.Value><DropShadowEffect Color="#7DDBB8" BlurRadius="10" ShadowDepth="0" Opacity="0.13" /></Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsConfigured}" Value="False">
+                    <Setter TargetName="Card" Property="BorderBrush" Value="#59495A65" />
+                </DataTrigger>
+                <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Card" Property="Background" Value="{DynamicResource WidgetCardHoverBrush}" />
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Border x:Name="WidgetSurface" Margin="1"
+                Background="{DynamicResource WidgetShellBrush}"
+                BorderBrush="#7A66727C"
+                BorderThickness="1"
+                CornerRadius="16">
+            <Border.Effect>
+                <DropShadowEffect Color="#000000" BlurRadius="22" ShadowDepth="4" Opacity="0.34" />
+            </Border.Effect>
+            <Grid Margin="14,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="90" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="42" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid x:Name="DragRegion" Grid.Row="0" MouseLeftButtonDown="DragRegion_OnMouseLeftButtonDown">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="38" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="34" Height="34" CornerRadius="9" BorderBrush="#8275DCB1" Background="#1C75DCB1" BorderThickness="1" VerticalAlignment="Center">
+                        <Path Data="M 8,9 L 14,15 L 8,21 M 16,21 L 24,21" Stroke="{DynamicResource MintBrush}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
+                        <Button x:Name="WebsiteButton" Content="codexlover.com"
+                                Style="{StaticResource LinkButton}" FontSize="19" FontWeight="SemiBold" Padding="0"
+                                HorizontalAlignment="Left" Margin="0,0,0,2"
+                                ToolTip="Open https://codexlover.com in your browser"
+                                AutomationProperties.Name="Open codexlover.com in your browser"
+                                Click="WebsiteButton_OnClick" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Codex Accounts" FontSize="19" FontWeight="SemiBold" />
+                            <Border Margin="9,0,0,0" VerticalAlignment="Center" Background="#1D263039" BorderBrush="#555F6C76" BorderThickness="1" CornerRadius="8" Padding="8,3">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding ConnectedLabel}" FontSize="10.5" Foreground="{DynamicResource SecondaryTextBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="{Binding AppVersionLabel}" FontSize="10.5" Foreground="{DynamicResource MutedTextBrush}" Margin="0,2,0,0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="MembershipButton" Content="Membership" ToolTip="Manage your Codex Lover membership" Click="MembershipButton_OnClick" Margin="0,0,5,0" Padding="7,4" FontSize="10" />
+                        <Button Style="{StaticResource IconButton}" Content="&#xE8A7;" ToolTip="Toggle one or two columns"
+                                AutomationProperties.Name="Toggle one or two columns" Click="LayoutButton_OnClick" Margin="0,0,5,0" />
+                        <Button Style="{StaticResource IconButton}" Content="&#xE921;" ToolTip="Hide widget to tray"
+                                AutomationProperties.Name="Hide widget to tray" Click="MinimizeButton_OnClick" Margin="0,0,5,0" />
+                        <Button Style="{StaticResource IconButton}" Content="&#xE8BB;" ToolTip="Close widget to tray"
+                                AutomationProperties.Name="Close widget to tray" Click="CloseButton_OnClick" />
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer x:Name="AccountsScroller" Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False" Padding="0,0,3,0">
+                    <ItemsControl x:Name="AccountItems" ItemsSource="{Binding AllAccounts}" ItemTemplate="{StaticResource AccountCardTemplate}"
+                                  HorizontalContentAlignment="Stretch">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <controls:ResponsiveAccountPanel MinimumItemWidth="500" ColumnSpacing="10" RowSpacing="9" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Command="{Binding RefreshAllCommand}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SecondaryTextBrush}" Cursor="Hand" Padding="2"
+                            AutomationProperties.Name="Refresh all accounts" ToolTip="Refresh all accounts">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE72C;" FontSize="14" Margin="0,0,6,0" />
+                            <TextBlock FontSize="12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock"><Setter Property="Text" Value="Refresh" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding IsRefreshing}" Value="True"><Setter Property="Text" Value="Refreshing…" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding LastUpdatedText}">
+                        <TextBlock Text="{Binding AttentionSummary}" FontSize="11" HorizontalAlignment="Center">
+                            <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+                                <Style.Triggers><DataTrigger Binding="{Binding HasAttention}" Value="True"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></DataTrigger></Style.Triggers>
+                            </Style></TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding LastUpdatedText}" FontSize="10.5" Foreground="{DynamicResource MutedTextBrush}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Content="Model" ToolTip="Show or hide the Model. Right-click the character to choose Astra, Luna, Sol, or Terra." AutomationProperties.Name="Show or hide model" Click="ModelButton_OnClick" Margin="0,0,9,0" Padding="7,4" FontSize="11" />
+                    <Button Command="{Binding OpenSettingsCommand}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SecondaryTextBrush}" Cursor="Hand" Padding="2"
+                            AutomationProperties.Name="Widget settings" ToolTip="Widget settings">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE713;" FontSize="14" Margin="0,0,6,0" />
+                            <TextBlock Text="Settings" FontSize="11" />
+                        </StackPanel>
+                    </Button>
+                    </StackPanel>
+                </Grid>
+                <controls:NewsTicker x:Name="NewsBar" Grid.Row="3" Margin="0,0,0,3" />
+                <Grid Grid.Row="4" Margin="0,3,0,0">
+                    <Button x:Name="UpdateButton" Visibility="Collapsed" HorizontalAlignment="Left" Click="UpdateButton_OnClick" Background="Transparent" BorderThickness="0" Padding="2,4" ToolTip="A newer version is available">
+                        <StackPanel Orientation="Horizontal"><Ellipse Width="8" Height="8" Fill="{DynamicResource MintBrush}" Margin="0,0,6,0"/><TextBlock Text="Update" FontSize="11" Foreground="{DynamicResource MintBrush}"/></StackPanel>
+                    </Button>
+                    <Button Content="Share feedback" HorizontalAlignment="Right" Click="FeedbackButton_OnClick" Background="Transparent" BorderThickness="0" Padding="2,4" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" />
+                </Grid>
+                <controls:ResetCalendar x:Name="ResetsBar" Grid.Row="5" />
+            </Grid>
+        </Border>
+
+        <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="20,0,20,48"
+                Background="{DynamicResource ToastBackgroundBrush}" BorderBrush="{DynamicResource ShellBorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13,7"
+                Visibility="{Binding HasToast, Converter={StaticResource BoolToVisibility}}">
+            <Grid MaxWidth="470">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <TextBlock FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">
+                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="●" /><Setter Property="Foreground" Value="{DynamicResource BlueBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ToastIsSuccess}" Value="True"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" /></DataTrigger>
+                            <DataTrigger Binding="{Binding ToastIsWarning}" Value="True"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /><Setter Property="Text" Value="!" /></DataTrigger>
+                            <DataTrigger Binding="{Binding ToastIsError}" Value="True"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /><Setter Property="Text" Value="!" /></DataTrigger>
+                        </Style.Triggers>
+                    </Style></TextBlock.Style>
+                </TextBlock>
+                <TextBlock Grid.Column="1" Text="{Binding ToastMessage}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" AutomationProperties.LiveSetting="Polite" />
+                <Button Grid.Column="2" Content="&#xE8BB;" Style="{StaticResource IconButton}" Command="{Binding DismissToastCommand}"
+                        AutomationProperties.Name="Dismiss message" ToolTip="Dismiss message" Margin="8,0,0,0" Padding="4" MinWidth="24" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

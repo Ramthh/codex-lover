@@ -1,0 +1,10 @@
+{
+  "name": "codex-lover-packaging",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Optional local Store asset tooling",
+  "dependencies": {
+    "sharp": "0.35.2"
+  }
+}

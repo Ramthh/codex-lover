@@ -1,0 +1,31 @@
+name: Windows build and regression tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [desktop, store]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build and test
+        shell: pwsh
+        run: |
+          $options = @{ ResultsDirectory = Join-Path $env:RUNNER_TEMP 'test-results' }
+          if ('${{ matrix.mode }}' -eq 'store') { $options.Store = $true }
+          ./scripts/Test.ps1 @options
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-${{ matrix.mode }}-test-results
+          path: ${{ runner.temp }}/test-results

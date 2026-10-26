@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible problem using sanitized information.
+body:
+  - type: markdown
+    attributes:
+      value: "Never include credentials, auth.json, tokens, cookies or account data. Report security issues privately through Security > Report a vulnerability."
+  - type: input
+    id: version
+    attributes:
+      label: Codex Lover version or commit
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Windows version, architecture and Codex version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce with synthetic data
+    validations:
+      required: true
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Relevant checks or sanitized diagnostics

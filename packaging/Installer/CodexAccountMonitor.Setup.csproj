@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <NuGetLockFilePath Condition="'$(PublishSingleFile)' == 'true'">$(MSBuildThisFileDirectory)packages.publish.lock.json</NuGetLockFilePath>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>CodexAccountMonitor.Setup</AssemblyName>
+    <Title>Codex Lover Setup</Title>
+    <AssemblyTitle>Codex Lover Setup</AssemblyTitle>
+    <Product>Codex Lover</Product>
+    <Description>Codex Lover installer for Windows</Description>
+    <ApplicationManifest>../../src/CodexAccountMonitor/app.manifest</ApplicationManifest>
+    <ApplicationIcon>../../src/CodexAccountMonitor/Resources/app.ico</ApplicationIcon>
+    <NoWarn>$(NoWarn);WFAC010;WFO0003</NoWarn>
+    <DefineConstants Condition="'$(UnsignedBeta)' == 'True'">$(DefineConstants);UNSIGNED_BETA</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/CodexAccountMonitor/Infrastructure/ExplorerLaunchBroker.cs" Link="ExplorerLaunchBroker.cs" />
+    <EmbeddedResource Include="../../src/CodexAccountMonitor/Resources/app.ico" LogicalName="setup-logo.ico" />
+    <EmbeddedResource Include="$(PayloadZip)" LogicalName="payload.zip" Condition="Exists('$(PayloadZip)')" />
+  </ItemGroup>
+</Project>

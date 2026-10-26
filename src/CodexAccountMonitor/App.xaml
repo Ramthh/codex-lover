@@ -1,0 +1,17 @@
+<Application x:Class="CodexAccountMonitor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CodexAccountMonitor"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <local:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibility" />
+            <local:InverseBooleanConverter x:Key="InverseBoolean" />
+            <local:AuthenticationBrushConverter x:Key="AuthenticationBrush" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

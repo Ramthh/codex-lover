@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(StoreBuild)' == 'true'">net10.0-windows10.0.19041.0</TargetFramework>
+    <DefineConstants Condition="'$(StoreBuild)' == 'true'">$(DefineConstants);STORE</DefineConstants>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+    <AssemblyName>CodexAccountMonitor</AssemblyName>
+    <RootNamespace>CodexAccountMonitor</RootNamespace>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!-- WPF reads per-monitor DPI awareness from app.manifest; WinForms is used only for the tray icon. -->
+    <NoWarn>$(NoWarn);WFAC010;WFO0003</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Sol\*.png" />
+    <Resource Include="Resources\Models\*.png" />
+    <ProjectReference Include="..\CodexAccountMonitor.Core\CodexAccountMonitor.Core.csproj" />
+  </ItemGroup>
+</Project>

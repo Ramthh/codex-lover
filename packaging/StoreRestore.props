@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Imported only by Store packaging, so normal/test restores cannot replace
+         the checked Store dependency graph while a release is being built. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <NuGetLockFilePath>$(MSBuildThisFileDirectory)locks\$(MSBuildProjectName).store.lock.json</NuGetLockFilePath>
+  </PropertyGroup>
+</Project>

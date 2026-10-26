@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "version": "0.155.1",
+  "target": "x86_64-pc-windows-msvc",
+  "release": "https://github.com/openai/codex/releases/tag/rust-v0.155.1",
+  "sourceCommit": "be2951ea34f0d295ed0becf97079f92fa5f6950e",
+  "packageLayout": "Unmodified official canonical package; notices and this provenance manifest are additional files.",
+  "entrypoint": "bin/codex.exe",
+  "archive": {
+    "name": "codex-package-x86_64-pc-windows-msvc.tar.gz",
+    "url": "https://github.com/openai/codex/releases/download/rust-v0.155.1/codex-package-x86_64-pc-windows-msvc.tar.gz",
+    "sha256": "f45c273b7835c192aaa9cef5b93aa9528966ac7301444632de80a565a9bf14e8",
+    "bytes": 139547261
+  },
+  "signerName": "OpenAI OpCo, LLC",
+  "signerCertificateThumbprint": "E5037076B17ED298D8DB46AB1ED66FA88F857F55",
+  "signatureScope": "Four upstream OpenAI executables must have a valid Authenticode signature from the exact pinned release signer. Upstream ripgrep is unsigned and accepted only through the exact pinned official archive and file SHA-256.",
+  "files": [
+    {
+      "path": "bin/codex-code-mode-host.exe",
+      "sha256": "480da4a9a98b5b54d6656d731fbcc00c73fd4d0fc4b9aaceafc9fbdf08a7d523",
+      "bytes": 72473904,
+      "openAiSigned": true
+    },
+    {
+      "path": "bin/codex.exe",
+      "sha256": "eba0f32c976667cb9298efafd98513e823eeda7b576a03ec658bb8be8d336316",
+      "bytes": 307108144,
+      "openAiSigned": true
+    },
+    {
+      "path": "codex-package.json",
+      "sha256": "64a1994514c461a7fbf5a73367a31c21d7f328ac07ec64a920994700eae5b3b9",
+      "bytes": 215,
+      "openAiSigned": false
+    },
+    {
+      "path": "codex-path/rg.exe",
+      "sha256": "14231169855ec5205cf5a1b6f1db358ff4aed4247c86b69ce8aae647c77f6680",
+      "bytes": 4218880,
+      "openAiSigned": false
+    },
+    {
+      "path": "codex-resources/codex-command-runner.exe",
+      "sha256": "0431ee03aaf7e3c2ecda92017ef2fb9750d66221917467132c2136f078924b6c",
+      "bytes": 8217904,
+      "openAiSigned": true
+    },
+    {
+      "path": "codex-resources/codex-windows-sandbox-setup.exe",
+      "sha256": "a430e15894ef450ee9003459597f95b3e3db5ac1e260f662bbc5d7db4e855047",
+      "bytes": 15498544,
+      "openAiSigned": true
+    }
+  ],
+  "noticesScope": "Verbatim upstream Codex LICENSE/NOTICE and concrete known bundled-component notices: Ratatui 0.30.2, ripgrep 15.2.0 with PCRE2 10.45, rusty_v8 150.4.0 and its pinned V8/ICU notices. The official canonical archive supplies no license files and the pinned upstream source has no exhaustive aggregate of Cargo transitive notices. This inventory is not represented as an exhaustive dependency-license audit.",
+  "notices": [
+    {
+      "path": "OpenAI-Codex-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/openai/codex/rust-v0.155.1/LICENSE",
+      "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+      "bytes": 10926
+    },
+    {
+      "path": "OpenAI-Codex-NOTICE.txt",
+      "source": "https://raw.githubusercontent.com/openai/codex/rust-v0.155.1/NOTICE",
+      "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915",
+      "bytes": 242
+    },
+    {
+      "path": "ripgrep-LICENSE-MIT.txt",
+      "source": "https://raw.githubusercontent.com/BurntSushi/ripgrep/15.2.0/LICENSE-MIT",
+      "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f",
+      "bytes": 1081
+    },
+    {
+      "path": "ripgrep-UNLICENSE.txt",
+      "source": "https://raw.githubusercontent.com/BurntSushi/ripgrep/15.2.0/UNLICENSE",
+      "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c",
+      "bytes": 1211
+    },
+    {
+      "path": "Ratatui-0.30.2-LICENSE.txt",
+      "source": "https://static.crates.io/crates/ratatui/ratatui-0.30.2.crate#ratatui-0.30.2/LICENSE",
+      "sha256": "50eb43e8d742c9c61a9391e42b2184fce54dbd1893a1bb1c85b8c9ee217ab1f5",
+      "bytes": 1132
+    },
+    {
+      "path": "rusty-v8-150.4.0-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/denoland/rusty_v8/v150.4.0/LICENSE",
+      "sha256": "1c6356fb751d45f0c53093ebf8a7f5e580e802f51999178e19d60f3ec39e147d",
+      "bytes": 1078
+    },
+    {
+      "path": "V8-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/denoland/v8/ac1e23989121713ca642f6650b34deff7b686896/LICENSE",
+      "sha256": "6ab33af8774a0f396ee3aeeb761e3229057682d6f9fa7f572e390c2cb3a6e509",
+      "bytes": 3093
+    },
+    {
+      "path": "V8-LICENSE.v8.txt",
+      "source": "https://raw.githubusercontent.com/denoland/v8/ac1e23989121713ca642f6650b34deff7b686896/LICENSE.v8",
+      "sha256": "4af93c12062c58058378de2397dc1c92bbff9ddfb1d583a01c84127557ce97ca",
+      "bytes": 1527
+    },
+    {
+      "path": "V8-LICENSE.fdlibm.txt",
+      "source": "https://raw.githubusercontent.com/denoland/v8/ac1e23989121713ca642f6650b34deff7b686896/LICENSE.fdlibm",
+      "sha256": "e7115e18444dae09d17f361ddc365fb1d342640fe500796209c63f7c80dfae10",
+      "bytes": 250
+    },
+    {
+      "path": "V8-LICENSE.strongtalk.txt",
+      "source": "https://raw.githubusercontent.com/denoland/v8/ac1e23989121713ca642f6650b34deff7b686896/LICENSE.strongtalk",
+      "sha256": "6a585a9f466654abc8fc0829d56b1bc987e3a073d31faa03bba37d33640a23cd",
+      "bytes": 1482
+    },
+    {
+      "path": "V8-ICU-LICENSE.txt",
+      "source": "https://chromium.googlesource.com/chromium/deps/icu/+/ee5f27adc28bd3f15b2c293f726d14d2e336cbd5/LICENSE?format=TEXT",
+      "sha256": "451167c55c0fa447cc2d5632714f5e3c567fe4f1e1badefab2c1333852198aca",
+      "bytes": 26487
+    },
+    {
+      "path": "ripgrep-COPYING.txt",
+      "source": "https://raw.githubusercontent.com/BurntSushi/ripgrep/15.2.0/COPYING",
+      "sha256": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f",
+      "bytes": 126
+    },
+    {
+      "path": "PCRE2-10.45-LICENCE.md",
+      "source": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.45/LICENCE.md",
+      "sha256": "9cf7ac6976099a1d856826d3ef1b093bd6b84489dc6100628ac79e740cf9885a",
+      "bytes": 3867
+    }
+  ]
+}

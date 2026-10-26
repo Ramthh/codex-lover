@@ -1,0 +1,29 @@
+<Window x:Class="CodexAccountMonitor.SolModelWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:CodexAccountMonitor.Controls"
+        Title="Sol — Codex Lover Model" Width="240" Height="256"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        Background="Transparent" Topmost="True" ShowActivated="False" ShowInTaskbar="False"
+        UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Grid x:Name="Scene" Background="{x:Null}"
+          MouseEnter="Scene_OnMouseEnter"
+          ToolTip="Sol · Drag to move · Click for limits · Right-click for options">
+        <Grid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Choose model">
+                    <MenuItem x:Name="AstraModelMenu" Header="Astra" Tag="Astra" IsCheckable="True" Click="ChooseModel_OnClick" />
+                    <MenuItem x:Name="LunaModelMenu" Header="Luna" Tag="Luna" IsCheckable="True" Click="ChooseModel_OnClick" />
+                    <MenuItem x:Name="SolModelMenu" Header="Sol" Tag="Sol" IsCheckable="True" IsChecked="True" Click="ChooseModel_OnClick" />
+                    <MenuItem x:Name="TerraModelMenu" Header="Terra" Tag="Terra" IsCheckable="True" Click="ChooseModel_OnClick" />
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Show limits now" Click="ShowLimits_OnClick" />
+                <MenuItem x:Name="AnimationMenu" Header="Animate Sol" IsCheckable="True" IsChecked="True" Click="Animation_OnClick" />
+                <Separator />
+                <MenuItem Header="Hide model" Click="HideModel_OnClick" />
+            </ContextMenu>
+        </Grid.ContextMenu>
+        <controls:SolCharacterVisual x:Name="Character" Width="240" Height="256" />
+    </Grid>
+</Window>
